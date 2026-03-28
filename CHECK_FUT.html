@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VN30F1M Command Center</title>
+    <!-- Thư viện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; }
+        .highlight-short { border-left: 4px solid #ef4444; }
+        .highlight-long { border-left: 4px solid #22c55e; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 
+           Vùng chứa chính - Sẽ được scale tự động bằng JS 
+           Origin-top-left giúp việc scale bám vào góc trên cùng bên trái 
+        */
+        #main-wrapper {
+            transform-origin: top center;
+            transition: transform 0.1s ease-out;
+            width: 100%;
+            max-width: 1152px; /* Kích thước chuẩn để không bị vỡ */
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    
+    <!-- Wrapper được áp dụng hiệu ứng Scale -->
+    <div id="main-wrapper">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-black text-blue-400 flex items-center tracking-tight">
+                    <span class="mr-3">⚡</span> VN30F1M COMMAND CENTER
+                </h1>
+                <p class="text-slate-400 text-sm mt-1 uppercase tracking-widest">Hệ thống kiểm soát kỷ luật vào lệnh</p>
+            </div>
+            <div class="bg-yellow-500/10 text-yellow-500 px-6 py-3 rounded-2xl text-sm font-bold border border-yellow-500/20 shadow-lg shadow-yellow-500/5">
+                “KHÔNG Ở VÙNG ĐẸP → TUYỆT ĐỐI KHÔNG TRADE”
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- CỘT TRÁI: REACT CHECKLIST -->
+            <div class="lg:col-span-7">
+                <div id="interactive-checklist"></div>
+            </div>
+
+            <!-- CỘT PHẢI: QUY TẮC STATIC -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Setup chính -->
+                <div class="card p-6 border-slate-700/50 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 text-blue-300 flex items-center">
+                        <i data-lucide="zap" class="w-5 h-5 mr-2"></i> 2 SETUP CHÍNH
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 bg-red-500/10 rounded-xl border border-red-500/20 highlight-short">
+                            <p class="font-bold text-red-400">HỒI → SHORT</p>
+                            <p class="text-xs leading-relaxed text-slate-300 mt-2">Trend giảm + Chạm kháng cự + Nến yếu lại</p>
+                        </div>
+                        <div class="p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20 highlight-long">
+                            <p class="font-bold text-emerald-400">HỒI → LONG</p>
+                            <p class="text-xs leading-relaxed text-slate-300 mt-2">Trend tăng + Chạm hỗ trợ + Nến rút chân</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lỗi chết người -->
+                <div class="card p-6 border-red-500/20 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 text-orange-400 flex items-center">
+                        <i data-lucide="alert-octagon" class="w-5 h-5 mr-2"></i> LỖI CHẾT NGƯỜI
+                    </h2>
+                    <ul class="space-y-3 text-slate-300">
+                        <li class="flex items-center gap-2 text-sm italic text-red-300">
+                            <i data-lucide="x" class="w-4 h-4"></i> Trade giữa vùng (No man's land)
+                        </li>
+                        <li class="flex items-center gap-2 text-sm">
+                            <i data-lucide="x" class="w-4 h-4 text-red-500"></i> Đuổi giá (FOMO nến đã chạy)
+                        </li>
+                        <li class="flex items-center gap-2 text-sm">
+                            <i data-lucide="x" class="w-4 h-4 text-red-500"></i> Không nến xác nhận (Đoán đỉnh/đáy)
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Kỷ luật ngày -->
+                <div class="card p-6 border-blue-500/30 shadow-2xl bg-slate-800/50">
+                    <h2 class="text-xl font-bold mb-5 text-blue-400 flex items-center underline decoration-2 underline-offset-8">
+                        <i data-lucide="shield-check" class="w-5 h-5 mr-2"></i> KỶ LUẬT SỐNG CÒN
+                    </h2>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="p-2">
+                            <p class="text-[10px] text-slate-400 uppercase tracking-tighter">1 lệnh sai</p>
+                            <p class="font-bold text-lg">Nghỉ 2h</p>
+                        </div>
+                        <div class="border-x border-slate-700 p-2">
+                            <p class="text-[10px] text-slate-400 uppercase tracking-tighter">2 lệnh sai</p>
+                            <p class="font-bold text-lg text-red-400">OFF MÁY</p>
+                        </div>
+                        <div class="p-2">
+                            <p class="text-[10px] text-slate-400 uppercase tracking-tighter">Target</p>
+                            <p class="font-bold text-lg text-emerald-400">+3đ Chốt</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-10 pb-8 text-center text-slate-600 text-[10px] uppercase tracking-[0.3em]">
+            Trade what you see, not what you think • Discipline equals Freedom
+        </div>
+    </div> <!-- Kết thúc Wrapper -->
+
+    <!-- LOGIC AUTO-SCALE (Khung xem động) -->
+    <script>
+        function applyDynamicScale() {
+            const wrapper = document.getElementById('main-wrapper');
+            const windowWidth = window.innerWidth;
+            const targetBaseWidth = 1152; // Kích thước lý tưởng cho giao diện 2 cột
+
+            // Nếu cửa sổ bị kéo nhỏ hơn form gốc, nhưng vẫn nằm ở giao diện Desktop/Tablet ngang (>768px)
+            if (windowWidth >= 768 && windowWidth < (targetBaseWidth + 64)) {
+                // Sử dụng thuộc tính zoom để thu nhỏ đều mọi thứ
+                // Cắt trừ 64px cho padding 2 bên
+                const scaleRatio = windowWidth / (targetBaseWidth + 64);
+                wrapper.style.zoom = scaleRatio;
+            } else {
+                // Reset về mặc định nếu phóng to hẳn hoặc thu nhỏ thành giao diện Mobile (1 cột)
+                wrapper.style.zoom = 1;
+            }
+        }
+
+        // Bắt sự kiện mỗi khi cửa sổ bị kéo / thay đổi kích thước
+        window.addEventListener('resize', applyDynamicScale);
+        // Chạy ngay lần đầu tiên mở trang
+        applyDynamicScale();
+    </script>
+
+    <!-- REACT LOGIC -->
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        const Icon = ({ name, className }) => {
+            useEffect(() => { lucide.createIcons(); }, [name]);
+            return <i data-lucide={name} className={className}></i>;
+        };
+
+        const ChecklistApp = () => {
+            const [step, setStep] = useState(0);
+            const [trend, setTrend] = useState(null);
+            const [status, setStatus] = useState('PROCESS');
+            const [failReason, setFailReason] = useState('');
+
+            const steps = [
+                { id: 1, title: "TREND", question: "Giá so với MA50/MA200 (15M)?", options: [{ label: "Giá > MA (LONG)", value: "LONG", next: true }, { label: "Giá < MA (SHORT)", value: "SHORT", next: true }], icon: "trending-up" },
+                { id: 2, title: "VỊ TRÍ", question: "Giá tại Hỗ trợ / Kháng cự mạnh?", options: [{ label: "CÓ (Đẹp)", value: "YES", next: true }, { label: "KHÔNG (Bỏ)", value: "NO", next: false, reason: "Giá lơ lửng giữa vùng - Rất dễ dính Stoploss!" }], icon: "map-pin" },
+                { id: 3, title: "NẾN", question: "Có nến xác nhận đảo chiều/tiếp diễn?", options: [{ label: "CÓ (Đã đóng nến)", value: "YES", next: true }, { label: "KHÔNG (Chưa rõ)", value: "NO", next: false, reason: "Nến chưa xác nhận. Đừng cầm đèn chạy trước ô tô!" }], icon: "candlestick-chart" },
+                { id: 4, title: "VOL", question: "Volume có đột biến ủng hộ không?", options: [{ label: "CÓ (Vol khỏe)", value: "YES", next: true }, { label: "KHÔNG (Vol yếu)", value: "NO", next: false, reason: "Thiếu lực đẩy từ Volume - Cẩn thận cú lừa (Trap)!" }], icon: "activity" },
+                { id: 5, title: "TIMING", question: "RSI/Stoch đã vào vùng Over?", get subText() { return trend === 'LONG' ? "Long: RSI 30-45" : "Short: RSI 55-65" }, options: [{ label: "OK (Timing chuẩn)", value: "YES", next: true }, { label: "CHƯA (Quá sớm)", value: "NO", next: false, reason: "Timing chưa tới. Vào sớm dễ dính nhịp chỉnh!" }], icon: "clock" },
+                { id: 6, title: "R:R", question: "SL 2 điểm - TP > 3 điểm. Đạt không?", options: [{ label: "ĐẠT (Vào lệnh)", value: "YES", next: true }, { label: "KHÔNG (Kèo chua)", value: "NO", next: false, reason: "Tỷ lệ R:R không tốt. Đừng mạo hiểm vốn vì miếng mồi nhỏ!" }], icon: "target" }
+            ];
+
+            const handleChoice = (option) => {
+                if (step === 0) setTrend(option.value);
+                if (option.next) {
+                    if (step < steps.length - 1) setStep(step + 1);
+                    else setStatus('SUCCESS');
+                } else {
+                    setFailReason(option.reason);
+                    setStatus('FAILED');
+                }
+            };
+
+            const reset = () => { setStep(0); setTrend(null); setStatus('PROCESS'); setFailReason(''); };
+
+            return (
+                <div className="card border-slate-700 shadow-2xl overflow-hidden min-h-[550px] flex flex-col fade-in">
+                    {status === 'PROCESS' && (
+                        <div className="h-1.5 w-full bg-slate-800">
+                            <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${((step + 1) / steps.length) * 100}%` }}></div>
+                        </div>
+                    )}
+
+                    <div className="p-8 flex-grow flex flex-col justify-center">
+                        {status === 'PROCESS' && (
+                            <div className="space-y-8 fade-in">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-blue-500/20 rounded-xl">
+                                        <Icon name={steps[step].icon} className="w-8 h-8 text-blue-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Bước {step + 1} / {steps.length}</p>
+                                        <h3 className="text-xl font-bold text-slate-200">{steps[step].title}</h3>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-2xl md:text-3xl font-bold leading-tight mb-4">{steps[step].question}</h2>
+                                    {steps[step].subText && (
+                                        <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded text-blue-400 text-sm font-medium">
+                                            {steps[step].subText}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-4">
+                                    {steps[step].options.map((opt, idx) => (
+                                        <button key={idx} onClick={() => handleChoice(opt)} 
+                                            className={`group flex items-center justify-between p-6 rounded-2xl border-2 transition-all active:scale-[0.98] ${
+                                                idx === 0 
+                                                ? 'border-emerald-500/20 bg-emerald-500/5 hover:border-emerald-500 hover:bg-emerald-500/10' 
+                                                : 'border-slate-700 bg-slate-800/50 hover:border-red-500/50 hover:bg-red-500/5'
+                                            }`}>
+                                            <span className="text-lg font-bold">{opt.label}</span>
+                                            <Icon name="chevron-right" className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all transform translate-x--2 group-hover:translate-x-0" />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {status === 'FAILED' && (
+                            <div className="text-center space-y-6 fade-in">
+                                <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Icon name="shield-alert" className="w-12 h-12 text-red-500" />
+                                </div>
+                                <h2 className="text-4xl font-black text-red-500 uppercase">DỪNG LẠI!</h2>
+                                <p className="text-slate-300 text-lg px-6 leading-relaxed">{failReason}</p>
+                                <div className="p-4 bg-slate-950/50 rounded-xl border border-slate-800 italic text-slate-400">
+                                    "Thà chảy nước miếng còn hơn chảy nước mắt"
+                                </div>
+                                <button onClick={reset} className="w-full py-4 bg-slate-700 hover:bg-slate-600 rounded-2xl font-bold text-lg transition-all">THỬ LẠI PHIÊN MỚI</button>
+                            </div>
+                        )}
+
+                        {status === 'SUCCESS' && (
+                            <div className="text-center space-y-6 fade-in">
+                                <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Icon name="check-circle" className="w-12 h-12 text-emerald-500" />
+                                </div>
+                                <h2 className="text-4xl font-black text-emerald-500 uppercase tracking-tighter">VÀO LỆNH {trend}!</h2>
+                                <p className="text-slate-400 italic">Hệ thống xác nhận: Đủ điều kiện an toàn.</p>
+                                
+                                <div className="bg-slate-950/50 p-6 rounded-2xl border border-emerald-500/30 text-left space-y-4">
+                                    <p className="font-bold text-slate-200 border-b border-slate-800 pb-2">KẾ HOẠCH QUẢN TRỊ:</p>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-slate-400">Cắt lỗ (SL):</span>
+                                        <span className="font-bold text-red-400">-2 Điểm</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-slate-400">Chốt lời (TP):</span>
+                                        <span className="font-bold text-emerald-400">+3..5 Điểm</span>
+                                    </div>
+                                </div>
+
+                                <button onClick={reset} className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-xl shadow-lg shadow-emerald-900/20 transition-all active:scale-95">
+                                    XÁC NHẬN & VÀO LỆNH
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    
+                    <div className="px-8 py-4 bg-slate-950/50 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                        <span>Trading System v2.0</span>
+                        <button onClick={reset} className="flex items-center gap-1 hover:text-blue-400 transition-colors">
+                            <Icon name="refresh-cw" className="w-3 h-3" /> Reset
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('interactive-checklist'));
+        root.render(<ChecklistApp />);
+    </script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
