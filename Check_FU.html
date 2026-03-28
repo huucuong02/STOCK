@@ -1,0 +1,240 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, RotateCcw, AlertTriangle, CheckCircle2, XCircle, TrendingUp, TrendingDown, Clock, BarChart3, Target } from 'lucide-react';
+
+const App = () => {
+  const [step, setStep] = useState(0);
+  const [trend, setTrend] = useState(null); // 'LONG' or 'SHORT'
+  const [status, setStatus] = useState('PROCESS'); // 'PROCESS', 'SUCCESS', 'FAILED'
+  const [failReason, setFailReason] = useState('');
+
+  const steps = [
+    {
+      id: 1,
+      title: "XÁC ĐỊNH TREND",
+      question: "Giá đang nằm ở đâu so với MA50/MA200?",
+      options: [
+        { label: "Giá > MA50/MA200", value: "LONG", next: true },
+        { label: "Giá < MA50/MA200", value: "SHORT", next: true }
+      ],
+      icon: <TrendingUp className="w-6 h-6 text-blue-400" />
+    },
+    {
+      id: 2,
+      title: "VỊ TRÍ GIÁ",
+      question: "Giá có đang ở vùng HỖ TRỢ hoặc KHÁNG CỰ mạnh không?",
+      options: [
+        { label: "CÓ (Đang ở vùng cản)", value: "YES", next: true },
+        { label: "KHÔNG (Đang ở giữa vùng)", value: "NO", next: false, reason: "Giá ở giữa vùng - Không có điểm tựa!" }
+      ],
+      icon: <Target className="w-6 h-6 text-yellow-400" />
+    },
+    {
+      id: 3,
+      title: "TÍN HIỆU NẾN",
+      question: "Có nến xác nhận (Rút chân, Engulfing, nến mạnh) chưa?",
+      options: [
+        { label: "CÓ (Đã xác nhận)", value: "YES", next: true },
+        { label: "KHÔNG (Nến yếu/chưa rõ)", value: "NO", next: false, reason: "Chưa có nến xác nhận - Dễ bị trap!" }
+      ],
+      icon: <BarChart3 className="w-6 h-6 text-purple-400" />
+    },
+    {
+      id: 4,
+      title: "XÁC NHẬN VOLUME",
+      question: "Volume có tăng theo hướng dự đoán không?",
+      options: [
+        { label: "CÓ (Vol ủng hộ)", value: "YES", next: true },
+        { label: "KHÔNG (Vol yếu)", value: "NO", next: false, reason: "Thiếu Volume xác nhận - Dễ là cú lừa!" }
+      ],
+      icon: <BarChart3 className="w-6 h-6 text-green-400" />
+    },
+    {
+      id: 5,
+      title: "CHỈ BÁO TIMING",
+      question: "RSI/Stoch đã vào vùng quá mua/quá bán chưa?",
+      subText: trend === 'LONG' ? "Long: RSI 30-40 / Stoch < 20" : "Short: RSI 50-60 / Stoch > 80",
+      options: [
+        { label: "CÓ (Timing đẹp)", value: "YES", next: true },
+        { label: "KHÔNG (Chưa chuẩn)", value: "NO", next: false, reason: "Chỉ báo chưa đồng thuận - Timing sai!" }
+      ],
+      icon: <Clock className="w-6 h-6 text-orange-400" />
+    },
+    {
+      id: 6,
+      title: "TỈ LỆ RISK/REWARD",
+      question: "SL 2 điểm - TP >= 3 điểm. Kèo này có đạt không?",
+      options: [
+        { label: "CÓ (R:R tốt)", value: "YES", next: true },
+        { label: "KHÔNG (Kèo chua)", value: "NO", next: false, reason: "Tỉ lệ R:R không xứng đáng để mạo hiểm!" }
+      ],
+      icon: <AlertTriangle className="w-6 h-6 text-red-400" />
+    }
+  ];
+
+  const handleChoice = (option) => {
+    if (step === 0) {
+      setTrend(option.value);
+    }
+
+    if (option.next) {
+      if (step < steps.length - 1) {
+        setStep(step + 1);
+      } else {
+        setStatus('SUCCESS');
+      }
+    } else {
+      setFailReason(option.reason);
+      setStatus('FAILED');
+    }
+  };
+
+  const reset = () => {
+    setStep(0);
+    setTrend(null);
+    setStatus('PROCESS');
+    setFailReason('');
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 font-sans">
+      <div className="w-full max-w-md bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-800">
+        
+        {/* Header */}
+        <div className="bg-slate-800 p-6 border-b border-slate-700">
+          <div className="flex justify-between items-center mb-2">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+              VN30F1M CHECKLIST
+            </h1>
+            <button onClick={reset} className="p-2 hover:bg-slate-700 rounded-full transition-colors">
+              <RotateCcw className="w-5 h-5 text-slate-400" />
+            </button>
+          </div>
+          
+          {status === 'PROCESS' && (
+            <div className="w-full bg-slate-700 h-1.5 rounded-full mt-4">
+              <div 
+                className="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${((step + 1) / steps.length) * 100}%` }}
+              ></div>
+            </div>
+          )}
+        </div>
+
+        {/* Content Area */}
+        <div className="p-6 min-h-[400px] flex flex-col justify-center">
+          
+          {status === 'PROCESS' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+              <div className="flex items-center gap-3 mb-2">
+                {steps[step].icon}
+                <span className="text-xs font-semibold tracking-widest text-slate-500 uppercase">
+                  Bước {step + 1} / {steps.length}
+                </span>
+              </div>
+              
+              <div>
+                <h2 className="text-2xl font-bold leading-tight mb-2">
+                  {steps[step].question}
+                </h2>
+                {steps[step].subText && (
+                  <p className="text-sm text-blue-400 font-medium italic bg-blue-400/10 p-2 rounded-lg inline-block">
+                    {steps[step].subText}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 pt-4">
+                {steps[step].options.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleChoice(opt)}
+                    className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all active:scale-95 ${
+                      idx === 0 
+                        ? 'border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500' 
+                        : 'border-red-500/20 bg-red-500/5 hover:bg-red-500/10 hover:border-red-500'
+                    }`}
+                  >
+                    <span className="font-bold text-lg">{opt.label}</span>
+                    <ChevronRight className="w-5 h-5 opacity-50" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {status === 'FAILED' && (
+            <div className="text-center space-y-6 animate-in zoom-in duration-300">
+              <div className="inline-flex items-center justify-center w-24 h-24 bg-red-500/10 rounded-full mb-4">
+                <XCircle className="w-16 h-16 text-red-500" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-black text-red-500 mb-2 uppercase">DỪNG LẠI!</h2>
+                <p className="text-slate-400 text-lg leading-relaxed px-4">
+                  {failReason}
+                </p>
+              </div>
+              <div className="p-4 bg-slate-800/50 rounded-2xl border border-red-500/20">
+                <p className="text-red-400 font-bold italic">
+                  "Không đủ điều kiện → Không bấm"
+                </p>
+              </div>
+              <button 
+                onClick={reset}
+                className="w-full py-4 bg-slate-800 hover:bg-slate-700 rounded-2xl font-bold transition-all"
+              >
+                THỬ LẠI PHIÊN MỚI
+              </button>
+            </div>
+          )}
+
+          {status === 'SUCCESS' && (
+            <div className="text-center space-y-6 animate-in zoom-in duration-300">
+              <div className="inline-flex items-center justify-center w-24 h-24 bg-emerald-500/10 rounded-full mb-4">
+                <CheckCircle2 className="w-16 h-16 text-emerald-500" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-black text-emerald-500 mb-2 uppercase">🎯 VÀO LỆNH {trend}</h2>
+                <p className="text-slate-400 font-medium">Tất cả điều kiện đã xác nhận.</p>
+              </div>
+
+              <div className="space-y-3 text-left bg-slate-800/80 p-5 rounded-2xl border border-emerald-500/30">
+                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider border-b border-slate-700 pb-2 mb-2">
+                  Kỷ luật sau vào lệnh:
+                </h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span>Lỗ <b>-2 điểm</b>: Cắt lỗ ngay</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  <span>Lãi <b>+3 điểm</b>: Chốt / Nghỉ</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  <span>Lỗ 2 lệnh/ngày: <b>NGHỈ</b></span>
+                </div>
+              </div>
+
+              <button 
+                onClick={reset}
+                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+              >
+                XÁC NHẬN & ĐÓNG APP
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer Reminder */}
+        {status === 'PROCESS' && (
+          <div className="px-6 py-4 bg-slate-950/50 flex items-center justify-center gap-2 text-xs text-slate-500 border-t border-slate-800">
+            <AlertTriangle className="w-3 h-3" />
+            <span>Sai một li, đi một dặm. Hãy kỷ luật!</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default App;
